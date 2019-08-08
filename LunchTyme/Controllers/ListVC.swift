@@ -34,7 +34,7 @@ class ListVC: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
     private var fetchResult = Array<Restaurant>()
 
-    var numberOfCell = 0
+    private var numberOfCell = 0
     
     fileprivate func fetchData() {
         NetworkHelper.getData { (result) in
@@ -66,7 +66,7 @@ class ListVC: UICollectionViewController, UICollectionViewDelegateFlowLayout {
         
         collectionView.register(ListCell.self, forCellWithReuseIdentifier: cellID)
         collectionView.alwaysBounceVertical = true
-        
+
         //Mark: set map button here:
         let mapButton = UIBarButtonItem(image: UIImage(named: "icon_map"), style: .plain, target: self, action: #selector(pressMapButton))
         self.navigationItem.setRightBarButton(mapButton, animated: true)
@@ -78,6 +78,8 @@ class ListVC: UICollectionViewController, UICollectionViewDelegateFlowLayout {
         title.textColor = UIColor.white
         navigationItem.titleView = title
         
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
+
     }
     
     // segue to mapView
@@ -88,16 +90,31 @@ class ListVC: UICollectionViewController, UICollectionViewDelegateFlowLayout {
         self.navigationController?.pushViewController(mapVC, animated: true)
     }
     
+    @objc func orientationDidChange() {
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
     
     // MARK: - Do some delegate methods
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return numberOfCell
     }
     
+    
+    // set cell size here:
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let screenWidth = collectionView.frame.size.width
+        let cellwidth = screenWidth
+        let model = UIDevice.current.model
+        if model.contains("iPad") {
+            return CGSize(width: cellwidth/2, height: cellHeight)
+        }
+        return CGSize(width: cellwidth, height: cellHeight)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
@@ -126,33 +143,21 @@ class ListVC: UICollectionViewController, UICollectionViewDelegateFlowLayout {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellID, for: indexPath) as! ListCell
         if indexPath.item < imagesURL.count {
             let url = imagesURL[indexPath.item]
-            /*   get image data direct from website        */
-//            do {
-//                let data = try Data(contentsOf: url)
-//                cell.imageView.image = UIImage(data: data)
-//            } catch let error {
-//                print(error)
-//            }
             
             /*   get image data using cache        */
             cell.imageView.loadImageAsync(with: url.absoluteString)
             cell.nameLabel.text = self.names[indexPath.item]
             cell.categoryLabel.text = self.categories[indexPath.item]
         }
+
+        let bgView = UIImageView(frame: cell.frame)
+        bgView.image = UIImage(named: "cellGradientBackground")
+        bgView.contentMode = .scaleToFill
+        bgView.frame = cell.frame
+        cell.backgroundView = bgView
         return cell
     }
-    
-    // set cell size here:
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let screenWidth = view.frame.size.width
-        var cellwidth = screenWidth
-        let model = UIDevice.current.model
-        if model.contains("iPad") {
-            cellwidth = cellwidth/2
-        }
-        return CGSize(width: cellwidth, height: cellHeight)
-    }
-    
+
     
     // MARK: loading image urls
     func loadImagesURL(_ result: [Restaurant]) {
@@ -161,6 +166,11 @@ class ListVC: UICollectionViewController, UICollectionViewDelegateFlowLayout {
             imagesURL.append(imageURL)
         }
     }
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    
     //MARK: remove the back button text
     override func viewWillDisappear(_ animated: Bool) {
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)

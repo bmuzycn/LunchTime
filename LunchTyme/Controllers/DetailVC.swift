@@ -20,30 +20,26 @@ class DetailVC: UIViewController, CLLocationManagerDelegate {
     
     var location: CLLocationCoordinate2D? {
         willSet(newValue) {
-            if let newCenter = newValue, let restaurant = restaurants.first {
-                let center = CLLocationCoordinate2D(latitude: (newCenter.latitude + restaurant.location.lat)/2, longitude: (newCenter.longitude + restaurant.location.lng)/2)
-                let span = MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+            if let newCenter = newValue {
+                let center = CLLocationCoordinate2D(latitude: newCenter.latitude, longitude: newCenter.longitude)
+                let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
                 let myRegion = MKCoordinateRegion(center: center, span: span)
                 mapView.setRegion(myRegion, animated: true)
+            }
+        }
+        didSet {
+            if let oldCenter = oldValue {
+                let center = CLLocationCoordinate2D(latitude: oldCenter.latitude, longitude: oldCenter.longitude)
+                let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                let myRegion = MKCoordinateRegion(center: center, span: span)
+                
+                MKMapView.animate(withDuration: 1.0, delay: 0, options: .curveEaseIn, animations: {
+                    self.mapView.setRegion(myRegion, animated: true)
+                })
             }
 
         }
     }
-    
-//    var name = ""
-//    var category = ""
-//    var lat: Double = 0.0 {
-//        willSet {
-//            print(newValue)
-//        }
-//    }
-//    var lng: Double = 0.0 {
-//        willSet {
-//            print(newValue)
-//        }
-//    }
-//    var address = ""
-    
     
     let mapView: MKMapView = {
         let view = MKMapView()
@@ -114,7 +110,6 @@ class DetailVC: UIViewController, CLLocationManagerDelegate {
     
 
     // MARK: setup views
-
     
     func setupViews() {
         
@@ -133,7 +128,7 @@ class DetailVC: UIViewController, CLLocationManagerDelegate {
             let lat = restaurant.location.lat
             let lng = restaurant.location.lng
             let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lng)
-            
+            location = coordinate
             let annotation = MKPointAnnotation()
             annotation.subtitle = restaurant.name
             annotation.coordinate = coordinate
@@ -141,9 +136,6 @@ class DetailVC: UIViewController, CLLocationManagerDelegate {
             print(restaurant.name)
         }
         mapView.addAnnotations(annotations)
-//        let center = CLLocationCoordinate2D(latitude: lat, longitude: lng)
-//        let region = MKCoordinateRegion(center: center, latitudinalMeters: 50000, longitudinalMeters: 50000)
-//        mapView.setRegion(region, animated: true)
         mapView.showsUserLocation = true
         mapView.showAnnotations(annotations, animated: true)
         view.addSubview(mapView)
@@ -157,6 +149,7 @@ class DetailVC: UIViewController, CLLocationManagerDelegate {
             let mapVC = DetailVC()
             mapVC.restaurants = restaurants
             mapVC.mapConstrainForFull()
+            mapVC.navigationItem.rightBarButtonItem = nil
             self.navigationController?.pushViewController(mapVC, animated: true)
         }
     }

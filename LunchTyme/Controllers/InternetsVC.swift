@@ -11,6 +11,8 @@ import WebKit
 
 class InternetsVC: UIViewController, WKNavigationDelegate, UITextFieldDelegate {
     
+    let baseurlString : String = "https://www.bottlerocketstudios.com/"
+    
     let webView: WKWebView = {
         let webConfiguration = WKWebViewConfiguration()
         let customFrame = CGRect.init(origin: CGPoint.zero, size: CGSize.init(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
@@ -29,7 +31,7 @@ class InternetsVC: UIViewController, WKNavigationDelegate, UITextFieldDelegate {
     }()
 
     let refreshButton: UIBarButtonItem = {
-        let view = UIBarButtonItem(image: UIImage(named: "ic_webRefresh"), style: .plain, target: self, action: #selector(goForward))
+        let view = UIBarButtonItem(image: UIImage(named: "ic_webRefresh"), style: .plain, target: self, action: #selector(refresh))
         return view
     }()
     
@@ -57,7 +59,7 @@ class InternetsVC: UIViewController, WKNavigationDelegate, UITextFieldDelegate {
         spinner.color = #colorLiteral(red: 0.2196078449, green: 0.007843137719, blue: 0.8549019694, alpha: 1)
         return spinner
     }()
-    
+
     override func viewWillAppear(_ animated: Bool) {
 
     }
@@ -74,8 +76,7 @@ class InternetsVC: UIViewController, WKNavigationDelegate, UITextFieldDelegate {
     
     func setupViews() {
 
-        let urlString : String = "https://www.bottlerocketstudios.com/"
-        let url: URL = URL(string: urlString)!
+        let url: URL = URL(string: baseurlString)!
         let urlRequest: URLRequest = URLRequest(url : url)
         webView.load(urlRequest)
         webView.navigationDelegate = self
@@ -83,7 +84,7 @@ class InternetsVC: UIViewController, WKNavigationDelegate, UITextFieldDelegate {
         self.navigationItem.leftBarButtonItems = [backButton, refreshButton, forwardButton]
 
 
-        urlTextField.text = urlString
+        urlTextField.text = baseurlString
         urlTextField.delegate = self
         urlTextField.becomeFirstResponder()
 
@@ -138,19 +139,54 @@ class InternetsVC: UIViewController, WKNavigationDelegate, UITextFieldDelegate {
         let urlRequest: URLRequest = URLRequest(url: url)
         textField.resignFirstResponder()
         webView.load(urlRequest)
+        backButton.isEnabled = true
+        backButton.image = UIImage(named: "ic_webBack")
         return true
     }
 
     @objc func goBack() {
-        if webView.canGoBack {
+        print("press")
+        guard let url = webView.url?.absoluteString else {
+            let url: URL = URL(string: baseurlString)!
+            let urlRequest: URLRequest = URLRequest(url : url)
+            webView.load(urlRequest)
+            return
+        }
+        if webView.canGoBack || url != baseurlString {
+            if !backButton.isEnabled {
+                backButton.isEnabled = true
+                backButton.image = UIImage(named: "ic_webBack")
+            }
+            
             webView.goBack()
+        }else if !webView.canGoBack && webView.url?.absoluteString != baseurlString {
+            backButton.isEnabled = true
+            let url: URL = URL(string: baseurlString)!
+            let urlRequest: URLRequest = URLRequest(url : url)
+            webView.load(urlRequest)
+        }
+        
+        else if webView.url?.absoluteString == baseurlString {
+            backButton.isEnabled = false
+            backButton.image = nil
+            forwardButton.isEnabled = true
+            forwardButton.image = UIImage(named: "ic_webForward")
 
         }
     }
 
     @objc func goForward() {
         if webView.canGoForward {
+            if !forwardButton.isEnabled {
+                forwardButton.isEnabled = true
+                forwardButton.image = UIImage(named: "ic_webForward")
+            }
             webView.goForward()
+        }else {
+            forwardButton.isEnabled = false
+            forwardButton.image = nil
+            backButton.isEnabled = true
+            backButton.image = UIImage(named: "ic_webBack")
         }
     }
 

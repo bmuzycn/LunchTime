@@ -22,12 +22,12 @@ class CustomTabBarController: UITabBarController {
     func setup() {
         //set up VCs here
         let layout = UICollectionViewFlowLayout()
+        layout.itemSize = CGSize(width: UIScreen.main.bounds.width/2, height: 180)
         let listVC = ListVC(collectionViewLayout: layout)
         let lunchNavController = UINavigationController(rootViewController: listVC)
         lunchNavController.navigationBar.titleTextAttributes = [.font: UIFont(name: "AvenirNext-DemiBold", size: 17)!, .foregroundColor: UIColor(red: 255, green: 255, blue: 255)]
         lunchNavController.tabBarItem.title = "lunch"
         lunchNavController.tabBarItem.image = UIImage(named: "tab_lunch")
-        
         let webVC = InternetsVC()
         let navWeb = UINavigationController(rootViewController: webVC)
         navWeb.tabBarItem.title = "internets"
@@ -43,7 +43,14 @@ extension UITabBar {
     
     override open func sizeThatFits(_ size: CGSize) -> CGSize {
         var sizeThatFits = super.sizeThatFits(size)
-        sizeThatFits.height = 50 // adjust your size here
-        return sizeThatFits
+        if UIDevice.current.name.contains("iPhone X"){
+            sizeThatFits.height = 90
+            return sizeThatFits
+
+        } else {
+            sizeThatFits.height = 50 // adjust your size here
+            return sizeThatFits
+        }
+
     }
 }

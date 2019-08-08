@@ -15,7 +15,7 @@ class ListCell: UICollectionViewCell {
     
     let imageView: UIImageView = {
         let view = UIImageView()
-        view.contentMode = .scaleAspectFill
+        view.contentMode = .scaleToFill
         view.clipsToBounds = true
         return view
     }()
@@ -42,7 +42,6 @@ class ListCell: UICollectionViewCell {
     }
     
     func setupView() {
-        backgroundView = UIImageView(image: UIImage(named: "cellGradientBackground"))
         nameLabel.textColor = textColor
         nameLabel.font = nameFont
         nameLabel.textAlignment = .center
@@ -50,15 +49,12 @@ class ListCell: UICollectionViewCell {
         categoryLabel.font = categoryFont
         categoryLabel.textAlignment = .center
         addSubview(imageView)
-        addSubview(nameLabel)
-        addSubview(categoryLabel)
+        imageView.addSubview(nameLabel)
+        imageView.addSubview(categoryLabel)
+        
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        let imageViewConstraints = [
-            NSLayoutConstraint(item: imageView, attribute: .top, relatedBy: .equal, toItem: self.contentView, attribute: .top, multiplier: 1.0, constant: 0),
-            NSLayoutConstraint(item: imageView, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: 0),
-            NSLayoutConstraint(item: imageView, attribute: .leading, relatedBy: .equal, toItem: self.contentView, attribute: .leading, multiplier: 1.0, constant: 0),
-            NSLayoutConstraint(item: imageView, attribute: .trailing, relatedBy: .equal, toItem: self.contentView, attribute: .trailing, multiplier: 1.0, constant: 0)]
-        addConstraints(imageViewConstraints)
+        addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-[v]-|", options: [], metrics: nil, views: ["v" : imageView]))
+        addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[v]-|", options: [], metrics: nil, views: ["v" : imageView]))
         
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         let nameLabelConstraints = [NSLayoutConstraint(item: nameLabel, attribute: .leading, relatedBy: .equal, toItem: imageView, attribute: .leading, multiplier: 1.0, constant: 12), NSLayoutConstraint(item: nameLabel, attribute: .bottom, relatedBy: .equal, toItem: categoryLabel, attribute: .top, multiplier: 1.0, constant: -6)]
@@ -69,10 +65,7 @@ class ListCell: UICollectionViewCell {
                          NSLayoutConstraint(item: categoryLabel, attribute: .bottom, relatedBy: .equal, toItem: imageView, attribute: .bottom, multiplier: 1.0, constant: -6)]
         addConstraints(categoryLabelConstraints)
     }
-//    override func prepareForReuse() {
-//        super.prepareForReuse()
-//        
-//    }
+
 }
 
 extension UIColor {
