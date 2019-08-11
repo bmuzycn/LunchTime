@@ -1,7 +1,9 @@
 # LunchTime
 A test for collection view and loading images from json url with cache function
-This is project contain some useful boilet code including:
+This is project contain some useful boilerplate code including:
   - image catching
   - fetch Json from url and parsing with Jsondecoder
-  - customized tab bar and navigation bar
+  - customized collectionView, tab bar and navigation bar
   - solve some rotation issues when runing on a iPad
+  - multiple annotations on apple map
+  - UI animation on Mapkit
