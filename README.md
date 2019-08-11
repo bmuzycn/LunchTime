@@ -7,3 +7,4 @@ This is project contain some useful boilerplate code including:
   - solve some rotation issues when runing on a iPad
   - multiple annotations on apple map
   - UI animation on Mapkit
+  - UIWebView with navigation functions
