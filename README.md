@@ -1,6 +1,6 @@
 # LunchTime
 A test for collection view and loading images from json url with cache function
-This is project contain some useful boilerplate code including:
+This is a small project containing some useful boilerplate code including:
   - image catching
   - fetch Json from url and parsing with Jsondecoder
   - customized collectionView, tab bar and navigation bar
